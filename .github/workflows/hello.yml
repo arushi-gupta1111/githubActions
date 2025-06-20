@@ -1,1 +1,18 @@
-fff
+name: Hello GitHub Actions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Say Hello
+        run: echo "Hello, GitHub Actions! Arushi"
+
