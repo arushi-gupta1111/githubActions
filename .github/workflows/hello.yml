@@ -13,6 +13,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Say Hello
-        run: echo "Hello, GitHub Actions! Arushi"
-
+      - name: Fancy Hello
+        run: echo "Hello, GitHub Actions!!!!!!!Arushi!"
