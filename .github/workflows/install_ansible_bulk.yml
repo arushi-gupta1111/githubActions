@@ -1,0 +1,51 @@
+---
+- name: Install Ansible on multiple Ubuntu servers with root privilege
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ubuntu_hosts:
+      - 192.168.1.101
+      - 192.168.1.102
+      - ubuntu-server-3.local
+      # Add more IPs/hostnames here
+
+  tasks:
+    - name: Install Python3 on each Ubuntu host
+      raw: test -e /usr/bin/python3 || (apt-get update -y && apt-get install -y python3)
+      delegate_to: "{{ item }}"
+      become: yes
+      become_user: root
+      changed_when: false
+      loop: "{{ ubuntu_hosts }}"
+
+    - name: Add Ansible PPA and install Ansible
+      shell: |
+        apt-get update -y
+        apt-get install -y software-properties-common
+        add-apt-repository --yes --update ppa:ansible/ansible
+        apt-get install -y ansible
+      args:
+        warn: false
+      delegate_to: "{{ item }}"
+      become: yes
+      become_user: root
+      notify: "Verify Ansible Installation"
+      loop: "{{ ubuntu_hosts }}"
+
+  handlers:
+    - name: Verify Ansible Installation
+      shell: ansible --version
+      register: ansible_check
+      delegate_to: "{{ item }}"
+      become: yes
+      become_user: root
+      listen: "Verify Ansible Installation"
+      changed_when: false
+      failed_when: "'ansible' not in ansible_check.stdout"
+      loop: "{{ ubuntu_hosts }}"
+
+    - name: Report successful installation
+      debug:
+        msg: "Ansible successfully installed on {{ item }}"
+      when: "'ansible' in ansible_check.stdout"
+      loop: "{{ ubuntu_hosts }}"
